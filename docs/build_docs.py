@@ -44,6 +44,7 @@ BOLD_RE = re.compile(r"\*\*([^*]+)\*\*")
 STRIKE_RE = re.compile(r"~~([^~]+)~~")
 ITALIC_RE = re.compile(r"(?<!\*)\*([^*\s][^*]*?)\*(?!\*)")
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
+WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]")
 
 # Set once per document by markdown_to_html() before any inline rendering,
 # so relative markdown links resolve against the *source* file's directory,
@@ -96,6 +97,9 @@ def render_inline(text: str) -> str:
     text = INLINE_CODE_RE.sub(stash_code, text)
     text = html.escape(text)
     text = LINK_RE.sub(lambda m: f'<a href="{html.escape(resolve_link(m.group(2)), quote=True)}">{m.group(1)}</a>', text)
+    # Obsidian wikilinks are not resolvable from this standalone page, so show
+    # the label (or the note name) rather than the raw [[...]] syntax.
+    text = WIKILINK_RE.sub(lambda m: f'<span class="wikilink">{m.group(3) or m.group(1).rsplit("/", 1)[-1]}</span>', text)
     text = BOLD_RE.sub(r"<strong>\1</strong>", text)
     text = STRIKE_RE.sub(r"<del>\1</del>", text)
     text = ITALIC_RE.sub(r"<em>\1</em>", text)

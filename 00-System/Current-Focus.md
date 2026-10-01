@@ -14,7 +14,7 @@ As of YYYY-MM-DD:
 
 ## Active
 
-- _what is being worked on right now_
+- _what is being worked on right now — link the note it lives in, e.g. `[[01-Projects/<project>/README|<project>]]`_
 
 ## Changed this session
 
@@ -22,4 +22,4 @@ As of YYYY-MM-DD:
 
 ## Next
 
-- _the next concrete step_
+- _the next concrete step — link the ADR or note it comes from if there is one_

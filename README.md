@@ -84,6 +84,13 @@ flowchart LR
 
 Folder numbers 03–05 are unused here, so they can be added later if needed.
 
+## Note format
+
+Notes use Obsidian conventions — YAML frontmatter and `[[wikilinks]]` between notes —
+but they are plain Markdown files, so Obsidian is not required. Open the folder in
+Obsidian later and the links, backlinks and graph work without changes. The rules
+(vault-relative paths, only link to notes that exist) are in `setup.md`.
+
 ## Keeping spend down
 
 Guidance from how Claude Code works, **not measured results** in this vault. Check

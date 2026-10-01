@@ -57,6 +57,32 @@ project but is generally true). `<topic>` is a plain, specific name (e.g.
 broad reference material; this folder is for what was actually learned from
 real work, not a restatement of the skills).
 
+## Note format: Obsidian-style, no Obsidian needed
+
+Notes are written the way Obsidian expects, but they are plain Markdown files, so
+nothing needs to be installed. Opening the folder in Obsidian later just works.
+When creating or editing any note under `00-System/`, `01-Projects/` or `02-Knowledge/`:
+
+- **Frontmatter on every note** — a YAML block at the top with at least `title`,
+  `type` (`index`, `adr`, `troubleshooting`, `knowledge`), `date` and `tags`. The
+  templates in `06-Templates/` already have it; copy it, don't invent new fields.
+- **Link related notes with `[[wikilinks]]`**, not Markdown links:
+  - `[[01-Projects/<project>/decisions/ADR-001-short-title]]` — vault-relative
+    path, no `.md`. Use the full path so it can't be ambiguous.
+  - `[[path/to/note|short label]]` — a label for reading.
+  - `[[path/to/note#Heading]]` — a link to one heading in that note.
+- **Only link to a note that exists.** A link to a note that was never written is a
+  claim that it was; if the note is still planned, say that in plain text instead.
+- **Link where it helps a reader get to the next note**: a repo overview to its
+  ADRs and troubleshooting notes, an ADR to the note it supersedes, a troubleshooting
+  note to the ADR it led to. Don't add links just to have links.
+- Each template ends with a `## Related` section for these links. Leave it out
+  when there is nothing real to link, don't fill it with placeholders.
+- Tags are lowercase, kebab-case, in the frontmatter `tags` list. Keep them few.
+
+Use ordinary Markdown links only for external URLs and for files that are not
+notes (for example `config.example.yaml`).
+
 ## Adding a new repo
 
 Before doing any real work in a new repo, in order:

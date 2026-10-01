@@ -24,6 +24,13 @@ creating anything new (a project folder, a knowledge note, an ADR). In short:
   see its own header. These load automatically when relevant, but they're
   general guidance, not a substitute for a specific repo's own conventions.
 
+## Note Format
+
+Notes follow Obsidian conventions, but they are plain Markdown — no Obsidian install
+is needed. Every note has YAML frontmatter, and related notes are linked with
+`[[wikilinks]]` using the vault-relative path (`[[01-Projects/<project>/decisions/ADR-001-title|ADR-001]]`).
+Only link to notes that exist. `setup.md` has the full rules.
+
 ## Core Principle
 
 > If it didn't actually happen, don't document it as if it did.

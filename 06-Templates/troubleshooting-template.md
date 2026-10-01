@@ -4,6 +4,7 @@ type: troubleshooting
 status: open | resolved
 date: YYYY-MM-DD
 project: <project-name>
+tags: []
 ---
 
 # <short problem title>
@@ -35,3 +36,7 @@ project: <project-name>
 ## Lesson Learned
 
 <what this changes going forward, if anything>
+
+## Related
+
+- <the ADR this led to, or the repo overview, as `[[wikilinks]]` — remove this section if none>
