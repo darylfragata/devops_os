@@ -1,0 +1,14 @@
+# config.example.yaml — copy this to config.yaml and fill in real values.
+# config.yaml itself is gitignored (see .gitignore) — never commit real repo
+# paths, names, or notes. Only this example, with placeholders, is public.
+
+repos:
+  - name: <repo-name>
+    path: <full on-disk path, e.g. C:\code\repo-name or /home/you/code/repo-name>
+    type: terraform-module   # terraform-module | azure-pipeline | application | other
+    notes: <one line — owner, gotcha, convention>
+
+  # - name: another-repo
+  #   path: ...
+  #   type: ...
+  #   notes: ...

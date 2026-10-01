@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devops_os -- Docs</title>
+<script>
+// Runs before CSS paints, so a saved theme choice applies immediately --
+// no flash of the wrong theme on load. Falls back silently (no explicit
+// choice applied) if localStorage is blocked, e.g. a private window.
+(function () {
+  try {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') {
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  } catch (e) {}
+})();
+// Shared by the mermaid init (module script, below) and the toggle button --
+// resolves the *effective* theme: an explicit choice always wins, otherwise
+// falls back to the OS preference.
+function resolveTheme() {
+  var explicit = document.documentElement.getAttribute('data-theme');
+  if (explicit === 'dark' || explicit === 'light') return explicit;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+</script>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1a1a1a; --muted: #6b7280; --border: #e5e7eb;
+  --sidebar-bg: #f8f9fb; --code-bg: #f3f4f6; --accent: #2563eb;
+  --accent-bg: #eff6ff;
+}
+/* OS preference applies only when no explicit choice has been made below */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181d; --fg: #e6e6e6; --muted: #9aa1ac; --border: #2c2f36;
+    --sidebar-bg: #1b1e24; --code-bg: #21242b; --accent: #7aa2f7;
+    --accent-bg: #1e293f;
+  }
+}
+/* Explicit choice via the toggle button, persisted in localStorage --
+   always wins over both the OS preference and the light default above. */
+:root[data-theme="dark"] {
+  --bg: #16181d; --fg: #e6e6e6; --muted: #9aa1ac; --border: #2c2f36;
+  --sidebar-bg: #1b1e24; --code-bg: #21242b; --accent: #7aa2f7;
+  --accent-bg: #1e293f;
+}
+#theme-toggle {
+  position: fixed; top: 12px; right: 16px; z-index: 20;
+  background: var(--sidebar-bg); color: var(--fg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  font-family: inherit;
+}
+#theme-toggle:hover { background: var(--border); }
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  display: flex; min-height: 100vh;
+}
+nav {
+  width: 260px; flex: 0 0 260px; background: var(--sidebar-bg);
+  border-right: 1px solid var(--border); padding: 20px 12px;
+  overflow-y: auto; position: sticky; top: 0; height: 100vh;
+}
+nav h1 { font-size: 15px; margin: 0 8px 16px; }
+nav .group { margin-bottom: 14px; }
+nav .group-title {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); margin: 0 8px 6px; font-weight: 600;
+}
+nav a {
+  display: block; padding: 6px 8px; border-radius: 6px; color: var(--fg);
+  text-decoration: none; font-size: 13.5px; line-height: 1.3;
+}
+nav a:hover { background: var(--border); }
+nav a.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
+main { flex: 1; padding: 32px 40px 80px; max-width: 860px; }
+.page { display: none; }
+.page.active { display: block; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 26px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+h2 { font-size: 20px; margin-top: 34px; }
+h3 { font-size: 16px; margin-top: 26px; }
+h4 { font-size: 14px; margin-top: 20px; }
+a { color: var(--accent); }
+code {
+  background: var(--code-bg); padding: 2px 5px; border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+pre {
+  background: var(--code-bg); padding: 12px 14px; border-radius: 8px;
+  overflow-x: auto; border: 1px solid var(--border);
+}
+pre code { background: none; padding: 0; }
+pre.mermaid {
+  background: none; border: none; padding: 8px 0; text-align: center;
+  overflow-x: auto;
+}
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 14px; }
+th, td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: var(--sidebar-bg); }
+blockquote {
+  border-left: 3px solid var(--border); margin: 16px 0; padding: 4px 16px;
+  color: var(--muted);
+}
+hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+ul, ol { padding-left: 22px; }
+li { margin: 4px 0; }
+li input[type="checkbox"] { margin-right: 6px; }
+::selection { background: var(--accent-bg); }
+@media (max-width: 720px) {
+  body { flex-direction: column; }
+  nav { width: auto; flex: none; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+  main { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<button id="theme-toggle" type="button" aria-label="Toggle dark/light theme"></button>
+<nav>
+<h1>devops_os</h1>
+<div class="group">
+<div class="group-title">Overview</div>
+<a href="#overview-introduction">Introduction</a>
+<a href="#overview-ai-router-claude-md">AI Router (CLAUDE.md)</a>
+<a href="#overview-setup-naming">Setup &amp; Naming</a>
+</div>
+<div class="group">
+<div class="group-title">Reference</div>
+<a href="#reference-retrieval-questions">Retrieval Questions</a>
+<a href="#reference-third-party-skills">Third-Party Skills</a>
+</div>
+</nav>
+<main>
+<article class="page" id="overview-introduction">
+<p style="color:var(--muted);font-size:12.5px;margin-top:-8px">Source: <code>README.md</code></p>
+<h1>devops_os</h1>
+<p>A generic <code>CLAUDE.md</code> router template for Terraform/AWS IaC and Azure DevOps pipeline work with Claude Code — a command center that points at real repos on disk and tracks decisions, instead of holding any code itself.</p>
+<p>This repo is deliberately generic. It holds no real repo names, paths, account IDs, or project-specific detail — those live in a local <code>config.yaml</code>, which is gitignored and never committed here.</p>
+<p>The folder layout below (<code>00-System/</code>, <code>01-Projects/</code>, <code>02-Knowledge/</code>, <code>06-Templates/</code>) is already here after a plain clone — no AI session needed to bootstrap it. See <code>setup.md</code> for what each folder is for and the naming convention to use for anything created later.</p>
+<h2>What it&#x27;s for</h2>
+<p>Claude Code starts every session knowing nothing about your repos. This vault gives it a small, fixed place to look first: which repos exist and where, what was decided and why, and what has already gone wrong. It is a <strong>command center, not the code</strong> — Terraform and pipeline work still happens in the real repos, at their real paths.</p>
+<h2>Why use it</h2>
+<p>What follows comes from how it&#x27;s designed, not from measurement:</p>
+<ul><li>One entry point (<code>CLAUDE.md</code>) instead of re-explaining context at the start of every session.</li><li>Decisions (ADRs) and troubleshooting notes are written down once and found again, instead of living in a chat that&#x27;s gone.</li><li>A fixed honesty rule: a plan, a suspicion and a confirmed result are kept apart.</li><li>Vendor skills for Terraform style and AWS IAM come along with the vault.</li></ul>
+<p><strong>Does it save tokens?</strong> Not measured, so no claim is made. Session start is deliberately small (<code>CLAUDE.md</code>, <code>config.yaml</code> and a short <code>Current-Focus.md</code>), which <em>should</em> help, but reading notes costs tokens too. Treat any saving as unproven until measured.</p>
+<h2>How it fits together</h2>
+<pre class="mermaid">flowchart LR
+  subgraph vault[devops_os — this repo]
+    C[CLAUDE.md&lt;br/&gt;router + rules]
+    CFG[config.yaml&lt;br/&gt;local, gitignored]
+    P[01-Projects&lt;br/&gt;overviews, ADRs,&lt;br/&gt;troubleshooting]
+    K[02-Knowledge&lt;br/&gt;what was learned]
+    T[06-Templates]
+    S[.claude/skills]
+  end
+  R[(Real repos&lt;br/&gt;on disk)]
+  C --&gt;|reads| CFG
+  CFG --&gt;|paths to| R
+  C --&gt;|routes to| P
+  C --&gt;|uses| S
+  T --&gt;|shape| P
+  R -.-&gt;|work done here,&lt;br/&gt;then noted| P</pre>
+<h2>How a session works</h2>
+<ol><li>Open the parent folder in Claude Code. <code>CLAUDE.md</code> loads and reads <code>config.yaml</code> and <code>00-System/Current-Focus.md</code>.</li><li>Name the repo you&#x27;re working on. If it&#x27;s new, add it to <code>config.yaml</code> and create its overview note first (<code>setup.md</code>, &quot;Adding a new repo&quot;).</li><li>Claude works in the real repo at its real path, following that repo&#x27;s own <code>CLAUDE.md</code> if it has one.</li><li>When something is actually decided, write an ADR in <code>01-Projects/&lt;project&gt;/decisions/</code>. When something real is debugged, write a troubleshooting note. Not before.</li><li>Overwrite <code>00-System/Current-Focus.md</code> with the current state if you use it.</li></ol>
+<h2>What each folder is</h2>
+<table><thead><tr><th>Path</th><th>What it holds</th></tr></thead><tbody><tr><td><code>CLAUDE.md</code></td><td>The router: principle, structure, decisions log, session behavior, security placeholders</td></tr><tr><td><code>setup.md</code></td><td>Folder layout and naming convention (written for the AI)</td></tr><tr><td><code>config.example.yaml</code></td><td>Template for <code>config.yaml</code>, your real repo paths (gitignored)</td></tr><tr><td><code>00-System/</code></td><td><code>Current-Focus.md</code> (tiny snapshot, overwritten) and <code>Retrieval-Questions.md</code> (what this vault needs to answer)</td></tr><tr><td><code>01-Projects/&lt;name&gt;/</code></td><td>One folder per real project: repo overviews, <code>decisions/</code> (ADRs), <code>troubleshooting/</code>. Empty until real work</td></tr><tr><td><code>02-Knowledge/&lt;topic&gt;/</code></td><td>Things actually learned from real work. Empty until then</td></tr><tr><td><code>06-Templates/</code></td><td>Templates for repo overviews, ADRs, troubleshooting</td></tr><tr><td><code>.claude/skills/</code></td><td><code>terraform-style-guide</code>, <code>aws-iam</code> (vendored, see <code>THIRD_PARTY_SKILLS.md</code>), <code>azure-devops-cicd</code> (community)</td></tr></tbody></table>
+<p>Folder numbers 03–05 are unused here, so they can be added later if needed.</p>
+<h2>Keeping spend down</h2>
+<p>Guidance from how Claude Code works, <strong>not measured results</strong> in this vault. Check your real numbers (<code>/cost</code>, or a status line) before relying on any of it.</p>
+<ul><li>A long session re-sends its whole history with every message, so cost grows with session length. Start a fresh session for a new task, or run <code>/compact</code> earlier. A short <code>Current-Focus.md</code> is what makes starting fresh cheap.</li><li>Use a smaller model for simple edits and questions.</li><li>Name the repo or file you mean. Letting Claude read whole repos &quot;for context&quot; is usually the expensive part.</li><li>Big command outputs and subagents each add their own token use.</li><li>Notes cost tokens to read too. Keep them short, and don&#x27;t write ones nobody will use.</li></ul>
+<h2>Memory</h2>
+<p>Claude Code&#x27;s own auto-memory is stored per machine (under <code>~/.claude/</code>), not in this repo, so it doesn&#x27;t travel with the template and isn&#x27;t shared between people. What this repo carries across sessions is <code>Current-Focus.md</code>, the ADRs and the notes.</p>
+<h2>Limits</h2>
+<ul><li>Untested with a team. It&#x27;s written for one person; sharing it would need changes.</li><li>The notes are only as good as what was written. A wrong note is trusted by the next session.</li><li>Nothing here stops Claude from running Terraform. If a repo&#x27;s testing is done by people, put that rule in that repo&#x27;s own <code>CLAUDE.md</code> or Claude Code permission settings.</li></ul>
+<h2>Setup</h2>
+<ol><li>Clone this repo into the parent folder that contains (or will contain) the repos you work in day to day.</li><li>Copy <code>config.example.yaml</code> to <code>config.yaml</code> and fill in real repo paths.</li><li>Open that parent folder in an editor with Claude Code — <code>CLAUDE.md</code> loads automatically and reads <code>config.yaml</code> for known repos.</li><li>Fill in the <code>Security &amp; Data Handling</code> section of <code>CLAUDE.md</code> with your actual Claude deployment once confirmed with your organization&#x27;s policy.</li></ol>
+<h2>Files</h2>
+<ul><li><code>CLAUDE.md</code> — the router: core principle, structure, known-repos pointer, decisions log, session behavior, security placeholders.</li><li><code>setup.md</code> — the folder layout and naming convention, for the AI to follow when creating anything new.</li><li><code>config.example.yaml</code> — committed template for the repo list. Copy, don&#x27;t edit in place.</li><li><code>docs/index.html</code> — human-readable page built from the Markdown files by <code>docs/build_docs.py</code> (stdlib only: <code>python3 docs/build_docs.py</code>). Generated, so rebuild and commit it after editing any source listed in the script&#x27;s <code>MANIFEST</code>. Diagrams load Mermaid from a CDN, so they need internet access to render.</li><li><code>.gitignore</code> — keeps the real <code>config.yaml</code> out of git.</li><li><code>00-System/</code>, <code>01-Projects/</code>, <code>02-Knowledge/</code>, <code>06-Templates/</code> — the vault skeleton; see <code>setup.md</code>.</li><li><code>.claude/skills/</code> — <code>terraform-style-guide</code> and <code>aws-iam</code> are vendored unmodified from HashiCorp&#x27;s and AWS&#x27;s own official skill repos (see <code>THIRD_PARTY_SKILLS.md</code>); <code>azure-devops-cicd</code> is community-sourced. All load automatically by Claude Code when relevant.</li></ul>
+<h2>Keeping this safe to be public</h2>
+<ul><li>Never fill in <code>CLAUDE.md</code> itself with a real path, org name, or decision detail — that belongs in <code>config.yaml</code> only, which stays local.</li><li>Never commit <code>config.yaml</code>.</li><li>If a real credential, account ID, or proprietary detail ever ends up staged for commit here, stop and remove it before pushing.</li></ul>
+</article>
+<article class="page" id="overview-ai-router-claude-md">
+<p style="color:var(--muted);font-size:12.5px;margin-top:-8px">Source: <code>CLAUDE.md</code></p>
+<h1>CLAUDE.md</h1>
+<p>This file is the router for Terraform/AWS IaC and Azure DevOps pipeline work. It doesn&#x27;t hold code — it points at real repos on this machine and tracks what&#x27;s actually been decided about them, so a new session doesn&#x27;t start from zero.</p>
+<h2>Vault Structure</h2>
+<p>See <code>setup.md</code> for the full folder layout and the naming convention to use when creating anything new (a project folder, a knowledge note, an ADR). In short:</p>
+<ul><li><code>00-System/</code> — <code>Current-Focus.md</code> (tiny, overwritten snapshot) and <code>Retrieval-Questions.md</code> (what this vault actually needs to answer).</li><li><code>01-Projects/&lt;name&gt;/</code> — one per real project, created on demand, never pre-created speculatively. Holds repo overview notes, <code>decisions/</code> (ADRs), <code>troubleshooting/</code>.</li><li><code>02-Knowledge/&lt;topic&gt;/</code> — created only once a topic is genuinely studied from real work, not pre-filled.</li><li><code>06-Templates/</code> — canonical templates for repo overviews, ADRs, troubleshooting.</li><li><code>.claude/skills/</code> — <code>terraform-style-guide</code> (HashiCorp&#x27;s official Terraform skill) and <code>aws-iam</code> (AWS&#x27;s official IAM skill) are vendored from their official vendor repos, unmodified — see <code>THIRD_PARTY_SKILLS.md</code> for source and license. <code>azure-devops-cicd</code> is community-sourced, not vendor-official — see its own header. These load automatically when relevant, but they&#x27;re general guidance, not a substitute for a specific repo&#x27;s own conventions.</li></ul>
+<h2>Core Principle</h2>
+<blockquote>If it didn&#x27;t actually happen, don&#x27;t document it as if it did.</blockquote>
+<p>Never fabricate a decision, a result, a root cause, or claim a pipeline/module &quot;works&quot; unless it was actually confirmed. Say plainly when something is a plan, a recommendation, or untested — don&#x27;t write it as if it already happened.</p>
+<h2>Known Repos</h2>
+<p>Tracked in <code>config.yaml</code> (this vault&#x27;s own folder), not inline here — keeps real repo paths out of this file, and out of git if this vault&#x27;s repo is public.</p>
+<ul><li><code>config.example.yaml</code> — committed, placeholders only. This is what a public repo holds.</li><li><code>config.yaml</code> — gitignored, the real list. Copy the example to this filename and fill in real values the first time this vault is set up on a machine.</li></ul>
+<p>If <code>config.yaml</code> doesn&#x27;t exist yet, that means this vault hasn&#x27;t been set up on this machine yet — copy <code>config.example.yaml</code> to <code>config.yaml</code> before doing anything else.</p>
+<h2>Decisions Log</h2>
+<p>&lt;!-- Append short entries here when a real Terraform/pipeline decision gets made. Don&#x27;t backfill decisions that weren&#x27;t actually made yet. --&gt;</p>
+<h3>YYYY-MM-DD — <code>&lt;repo-name&gt;</code>: &lt;short decision title&gt;</h3>
+<p><strong>Context:</strong> &lt;what problem this addressed&gt; <strong>Decision:</strong> &lt;what was actually decided&gt; <strong>Why:</strong> &lt;the real reason — not a guess&gt;</p>
+<h2>Session Behavior</h2>
+<ul><li>At the start of a session, read this file, <code>config.yaml</code> (if it exists) and <code>00-System/Current-Focus.md</code> — that&#x27;s enough context. Don&#x27;t go re-reading every repo unless the task actually names one.</li><li>Before ending a session that made real progress, <strong>overwrite</strong> (don&#x27;t append to) <code>00-System/Current-Focus.md</code>: what&#x27;s active, what changed, what&#x27;s next. Keep it short. A session that only answered questions and changed no files doesn&#x27;t update it.</li><li>When a new repo shows up to work on, follow <code>setup.md</code>: add an entry to <code>config.yaml</code>, create its overview note under <code>01-Projects/</code>, then work at its real path — before doing anything else in it.</li><li>When a non-trivial Terraform/pipeline decision gets made, append an entry to <strong>Decisions Log</strong> — only after it&#x27;s actually decided, not while still weighing options.</li><li>Each individual repo may have its own <code>CLAUDE.md</code> with its own conventions — this file governs routing and decision tracking; a repo&#x27;s own file governs how to work in that repo&#x27;s code.</li></ul>
+<h2>Security &amp; Data Handling</h2>
+<p>&lt;!-- Confirm with your organization&#x27;s policy before relying on this daily. Do not commit this file with the placeholders below filled in with real values to a PUBLIC repo. --&gt;</p>
+<ul><li>Claude surface in use: <code>&lt;TBD — Team/Enterprise / Claude Code+org key / Bedrock / Azure&gt;</code></li><li>Never write AWS access keys, secret keys, Azure DevOps PATs, connection strings, or any credential into this file or <code>config.yaml</code>. Use placeholders: <code>&lt;ACCOUNT_ID&gt;</code>, <code>&lt;SUBSCRIPTION_ID&gt;</code>, <code>&lt;PAT&gt;</code>, <code>&lt;ORG_NAME&gt;</code>, <code>&lt;REPO_URL&gt;</code>.</li><li>Record decisions and patterns, not pasted proprietary specifics — no internal system names, customer data, or unreleased business details beyond what&#x27;s already fine to write down under your organization&#x27;s policy.</li><li>This file&#x27;s template (with placeholder rows/entries, no real values) is fine in a public repo. The moment real repo paths, decisions, or org-specific detail get filled in, that copy belongs somewhere private that matches your organization&#x27;s policy — not committed back to the public template repo.</li></ul>
+<h2>Writing Style</h2>
+<p>Technical, concise, honest, written by whoever did the work. No corporate buzzwords or marketing language.</p>
+</article>
+<article class="page" id="overview-setup-naming">
+<p style="color:var(--muted);font-size:12.5px;margin-top:-8px">Source: <code>setup.md</code></p>
+<h1>Setup &amp; Naming Conventions</h1>
+<p>This file is for Claude Code (or any AI tool reading <code>CLAUDE.md</code>) — it&#x27;s the reference for what already exists after a plain <code>git clone</code>, and what naming convention to follow when creating anything new later. A human setting this up only needs the three steps in <code>README.md</code>; this file is the detail behind them.</p>
+<h2>What already exists after cloning</h2>
+<p>No AI session is needed to get the base structure — it&#x27;s committed as-is:</p>
+<pre><code>devops_os/
+├── CLAUDE.md
+├── README.md
+├── setup.md
+├── config.example.yaml       # copy to config.yaml, fill in real repo paths
+├── .gitignore
+├── 00-System/
+│   ├── Current-Focus.md      # tiny, overwritten snapshot
+│   └── Retrieval-Questions.md
+├── 01-Projects/               # empty — one subfolder per real project, created on demand
+├── 02-Knowledge/              # empty — one subfolder per topic, created only once genuinely studied
+├── 06-Templates/
+│   ├── repo-overview-template.md
+│   ├── adr-template.md
+│   └── troubleshooting-template.md
+└── .claude/
+    └── skills/
+        ├── terraform-style-guide/   # vendored from hashicorp/agent-skills — see THIRD_PARTY_SKILLS.md
+        ├── aws-iam/                 # vendored from aws/agent-toolkit-for-aws — see THIRD_PARTY_SKILLS.md
+        └── azure-devops-cicd/       # community-sourced, not vendor-official — see its SKILL.md header</code></pre>
+<h2>Naming convention for anything created later</h2>
+<p><strong><code>01-Projects/&lt;name&gt;/</code></strong> — one folder per real project (a project can bundle several repos). <code>&lt;name&gt;</code> is the project&#x27;s actual name, kebab-case, matching how it&#x27;s referred to by your team — not the AI&#x27;s choice, ask if it&#x27;s ambiguous. Inside:</p>
+<ul><li><code>README.md</code> — one per real on-disk repo the project bundles, from <code>06-Templates/repo-overview-template.md</code>. If the project is a single repo, one <code>README.md</code> is enough; if it bundles multiple repos, use <code>01-Projects/&lt;name&gt;/&lt;repo-name&gt;/README.md</code>, one subfolder per repo, named exactly after the real repo.</li><li><code>decisions/</code> — ADRs, from <code>06-Templates/adr-template.md</code>, named <code>ADR-NNN-short-kebab-title.md</code>, numbered sequentially, never renumbered even when superseded.</li><li><code>troubleshooting/</code> — from <code>06-Templates/troubleshooting-template.md</code>, short descriptive kebab-case filenames, created only when something real gets debugged, not speculatively.</li></ul>
+<p><strong><code>02-Knowledge/&lt;topic&gt;/</code></strong> — created only once a topic is genuinely studied independent of any one project (e.g. a Terraform pattern that came up in one project but is generally true). <code>&lt;topic&gt;</code> is a plain, specific name (e.g. <code>terraform-state-management</code>, not <code>terraform</code> — see <code>.claude/skills/</code> for the broad reference material; this folder is for what was actually learned from real work, not a restatement of the skills).</p>
+<h2>Adding a new repo</h2>
+<p>Before doing any real work in a new repo, in order:</p>
+<ol><li>Add an entry to <code>config.yaml</code> (not <code>config.example.yaml</code>) with its real path.</li><li>Create its overview note at <code>01-Projects/&lt;project&gt;/README.md</code> (or <code>01-Projects/&lt;project&gt;/&lt;repo-name&gt;/README.md</code> if the project bundles more than one repo) from <code>06-Templates/repo-overview-template.md</code>.</li><li>Only then start the actual work, at the repo&#x27;s real path — never inside this vault.</li></ol>
+</article>
+<article class="page" id="reference-retrieval-questions">
+<p style="color:var(--muted);font-size:12.5px;margin-top:-8px">Source: <code>00-System/Retrieval-Questions.md</code></p>
+<h1>Retrieval Questions</h1>
+<p>The real questions this vault needs to be able to answer — drives whether it ever needs more structure than plain folders + <code>CLAUDE.md</code> + <code>config.yaml</code>. Starting draft, edit freely as real usage clarifies what&#x27;s actually asked.</p>
+<ul><li>What repos exist for <code>&lt;project&gt;</code>, and where do they live on disk?</li><li>What Terraform module pattern did we use for <code>&lt;resource type&gt;</code>, and why?</li><li>What&#x27;s the current state of the <code>&lt;pipeline-name&gt;</code> pipeline — working, broken, WIP?</li><li>Have we solved this class of problem before (a specific pipeline failure mode, a Terraform state issue, an IAM permission gap)?</li><li>What decision did we make about <code>&lt;topic&gt;</code>, and is there an ADR for it?</li></ul>
+</article>
+<article class="page" id="reference-third-party-skills">
+<p style="color:var(--muted);font-size:12.5px;margin-top:-8px">Source: <code>THIRD_PARTY_SKILLS.md</code></p>
+<h1>Third-Party Skills</h1>
+<p>Skills vendored into <code>.claude/skills/</code> from official vendor repos, kept as-is (unmodified) with their original license included in each folder.</p>
+<table><thead><tr><th>Skill</th><th>Source</th><th>Commit</th><th>License</th></tr></thead><tbody><tr><td><code>terraform-style-guide</code></td><td><a href="https://github.com/hashicorp/agent-skills">hashicorp/agent-skills</a>, <code>plugins/terraform/skills/terraform-style-guide</code></td><td><code>c2d65df</code></td><td>MPL-2.0 (see <code>terraform-style-guide/LICENSE</code>)</td></tr><tr><td><code>aws-iam</code></td><td><a href="https://github.com/aws/agent-toolkit-for-aws">aws/agent-toolkit-for-aws</a>, <code>skills/core-skills/aws-iam</code></td><td><code>68d9e85</code></td><td>Apache-2.0 (see <code>aws-iam/LICENSE</code>, <code>aws-iam/NOTICE</code>)</td></tr></tbody></table>
+<p><code>azure-devops-cicd</code> is not vendored from an official source — see its own <code>SKILL.md</code> header for provenance.</p>
+<h2>Why only these two AWS/Terraform skills</h2>
+<p>Both official repos are large collections of narrow, service-specific skills, not one broad &quot;best practices&quot; skill. <code>terraform-style-guide</code> and <code>aws-iam</code> were picked because they match this vault&#x27;s actual use case (Terraform IaC on AWS) most directly — <code>aws-iam</code> in particular includes IAM baseline-policy generation from a Terraform plan JSON. Other skills in those repos (<code>aws-security</code> = Security Hub/GuardDuty finding triage, <code>aws-networking</code> = Route 53/CloudFront/Transit Gateway routing, <code>aws-deployment</code> = AWS CodePipeline/CodeBuild — not applicable since this vault&#x27;s CI/CD is Azure DevOps) didn&#x27;t match closely enough to justify pulling in. Add more from either repo later if a real need shows up — don&#x27;t pre-pull the rest speculatively.</p>
+<h2>Keeping these current</h2>
+<p>These are pinned to a commit, not auto-updating. Re-clone the source repo and re-copy the skill folder (keeping <code>LICENSE</code>/<code>NOTICE</code>) periodically, or when a real gap shows up — no automation for this yet.</p>
+</article>
+</main>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  // Sets the diagrams' initial theme only -- toggling light/dark after load
+  // doesn't re-render already-drawn diagrams (a real, if minor, limitation).
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: resolveTheme() === 'dark' ? 'dark' : 'default'
+  });
+</script>
+<script>
+function updateThemeButton() {
+  var btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  btn.textContent = resolveTheme() === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+function toggleTheme() {
+  var next = resolveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeButton();
+}
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+updateThemeButton();
+function show(id) {
+  document.querySelectorAll('.page').forEach(function (el) { el.classList.remove('active'); });
+  document.querySelectorAll('nav a').forEach(function (el) { el.classList.remove('active'); });
+  var page = document.getElementById(id);
+  var link = document.querySelector('nav a[href="#' + id + '"]');
+  if (page) page.classList.add('active');
+  if (link) link.classList.add('active');
+  else if (page) {
+    // fallback: first page/link if hash doesn't match anything
+  }
+}
+function fromHash() {
+  var id = location.hash.replace('#', '') || 'overview-introduction';
+  show(id);
+}
+window.addEventListener('hashchange', fromHash);
+fromHash();
+</script>
+</body>
+</html>
