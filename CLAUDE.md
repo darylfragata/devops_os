@@ -70,6 +70,8 @@ machine yet — copy `config.example.yaml` to `config.yaml` before doing anythin
 - Before ending a session that made real progress, **overwrite** (don't append to)
   `00-System/Current-Focus.md`: what's active, what changed, what's next. Keep it
   short. A session that only answered questions and changed no files doesn't update it.
+  Don't wait for the very end: also overwrite it after each meaningful chunk of
+  work, since a usage cutoff or dropped session skips an end-of-session update.
 - When a new repo shows up to work on, follow `setup.md`: add an entry to
   `config.yaml`, create its overview note under `01-Projects/`, then work at its
   real path — before doing anything else in it.
